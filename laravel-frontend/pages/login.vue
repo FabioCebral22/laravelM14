@@ -1,51 +1,55 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import axios from "axios"
-import { useRouter } from 'vue-router'
+import axios from 'axios';
+import { Ref } from 'nuxt/dist/app/compat/vue-demi';
 
 definePageMeta({
   layout: "centered",
+  middleware: ["guest"]
 });
-interface loginForm {
-  email: string,
-  password: string,
+interface LoginPayload{
+  "email":string,
+  "password":string,
 }
-const datos = ref({
-  email: "",
-  password: "",
+const user:Ref<LoginPayload> = ref({
+  email:"",
+  password:""
 })
-const router = useRouter();
 
-async function login(datos: loginForm) {
-  let responseRegister
-  try {
-    responseRegister = await axios.post("http://localhost/api/login", datos)
-    router.push('/me');
-  } 
-  catch (e) {
-    console.log(`Ha ocurrido un error: ${e}`)
-  }
-}
+import {useAuth} from "../composables/useAuth";
+const {login}=useAuth();
+// async function login(user:LoginPayload){
+//   try{
+//     const login = await axios.post("/api/login", user)
+//     console.log(user)
+//     const router = useRouter()
+//     router.replace("/me")
+//   }catch(e){
+//     console.log(e)
+//   }
+// }
+
 </script>
 <template>
   <div class="login">
     <h1>Login</h1>
-    <form @submit.prevent="() => login(datos)">
+    <form @submit.prevent="login(user)">
       <label>
         <div>Email</div>
-        <input v-model="datos.email" type="text" />
+        <input type="text" v-model="user.email"/>
       </label>
 
       <label>
         <div>Password</div>
-        <input v-model="datos.password" type="password" />
+        <input type="password" v-model="user.password"/>
       </label>
       <button class="btn">Login</button>
     </form>
 
     <p>
       Don't have an account?
-      <NuxtLink class="underline text-lime-600" to="/register">Register now!</NuxtLink>
+      <NuxtLink class="underline text-lime-600" to="/register"
+        >Register now!</NuxtLink
+      >
     </p>
   </div>
 </template>

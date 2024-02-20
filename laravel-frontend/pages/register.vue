@@ -1,58 +1,62 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import axios from "axios"
+import axios from "axios";
+import { Ref } from "nuxt/dist/app/compat/vue-demi";
+
 definePageMeta({
   layout: "centered",
+  middleware: ["guest"]
 });
-
-interface camposForm {
-  name: string,
-  email: string,
-  password: string,
-  password_confirmation: string
+interface RegisterPayload{
+  "name":string,
+  "email":string,
+  "password":string,
+  "password_confirmation":string
 }
-
-const form = ref({
-  name: "",
-  email: "",
-  password: "",
-  password_confirmation: ""
+const payload:Ref<RegisterPayload> = ref({
+  name:"",
+  email:"",
+  password:"",
+  password_confirmation:""
 })
 
-async function register(form: camposForm) {
-  let responseRegister
-  try{
-    responseRegister = await axios.post("http://localhost/api/register", form)
-  } catch (e) {
-    console.log(`Ha ocurrido un error: ${e}`)
-  }
-}
+import {useAuth} from "../composables/useAuth";
+const {register}=useAuth();
+// async function register(payload:RegisterPayload) {
+//   try{
+//     const res=await axios.post("/api/register",payload)
+//     console.log(res)
+//     //afegit meu
+//     const router = useRouter()
+//     router.replace("/me")
+//   }catch(e){
+//     console.log(e)
+//   }
+  
+//  }
+
 </script>
 <template>
-  <pre>
-    {{ form }}
-  </pre>
   <div class="register">
     <h1>Register</h1>
-    <form @submit.prevent="() => register(form)">
+    <form @submit.prevent="register(payload)">
       <label>
         <div>Name</div>
-        <input v-model="form.name" type="text" required />
+        <input type="text" v-model="payload.name"/>
       </label>
 
       <label>
         <div>Email</div>
-        <input v-model="form.email" type="email" required/>
+        <input type="email" v-model="payload.email"/>
       </label>
 
       <label>
         <div>Password</div>
-        <input v-model="form.password" type="password" required/>
+        <input type="password" v-model="payload.password"/>
       </label>
 
       <label>
         <div>Confirm Password</div>
-        <input v-model="form.password_confirmation" type="password" required/>
+        <input type="password" v-model="payload.password_confirmation"/>
       </label>
 
       <button class="btn">Register</button>
