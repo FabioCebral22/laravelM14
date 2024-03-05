@@ -19,17 +19,6 @@ const form: Ref<RegisterForm> = ref<RegisterForm>({
   password_confirmation: "",
 });
 
-/* const register2 = async (form: RegisterForm) => {
-  let responseRegister;
-  try {
-    responseRegister = await axios.post("/register", form);
-    useRouter().push("/login");
-  } catch (e) {
-    console.error(`Ha ocurrido un error: ${e}`);
-  }
-  console.log(responseRegister);
-}; */
-
 async function handleRegister(payload: RegisterForm, node?: FormKitNode) {
   try {
     await register(payload);
@@ -52,29 +41,6 @@ async function handleRegister(payload: RegisterForm, node?: FormKitNode) {
         label="Confirm Password"
       />
     </FormKit>
-    <!--     <form @submit.prevent="() => register(form)">
-      <label>
-        <div>Name</div>
-        <input v-model="form.name" type="text" required />
-      </label>
-
-      <label>
-        <div>Email</div>
-        <input v-model="form.email" type="email" />
-      </label>
-
-      <label>
-        <div>Password</div>
-        <input v-model="form.password" type="password" />
-      </label>
-
-      <label>
-        <div>Confirm Password</div>
-        <input v-model="form.password_confirmation" type="password" />
-      </label>
-
-      <button type="submit" class="btn">Register</button>
-    </form> -->
 
     <p>
       Already have an account?
