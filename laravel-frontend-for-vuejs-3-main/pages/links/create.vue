@@ -29,11 +29,4 @@ async function createLink(payload:loginData, node?:FormKitNode) {
   <FormKit type="form" submit-label="Create Link" @submit="createLink" novalidate>
     <FormKit label="Link" type="url" name="full_link"></FormKit>
   </FormKit>
-  <!-- <form>
-    <label>
-      <div>Link</div>
-      <input type="text" name="full_link" />
-    </label>
-    <button class="btn">Create Link</button>
-  </form> -->
 </template>

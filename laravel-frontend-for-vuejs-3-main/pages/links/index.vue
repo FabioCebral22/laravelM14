@@ -2,8 +2,9 @@
 import axios from 'axios';
 import { Link } from '~~/types';
 import { TailwindPagination } from 'laravel-vue-pagination';
+import { useLinks } from '~~/composables/useLinks';
+import { link } from '@formkit/icons';
 
-let links = ref<Link[]>([]);
 let page = ref(useRoute().query.page || 1);
 const queries = ref({
   page:1,
@@ -11,30 +12,26 @@ const queries = ref({
   "filter[full_link]":"",
   ...useRoute().query
 });
+const {data, index:getLinks, destroy} = useLinks({queries});
+
+
 let resdata = {}
 let search = ref<string>("");
 
-const getLinks = async () => {
-  try {
-    //@ts-expect-error page es un nombre i aixi està bé
-    const qs = new URLSearchParams(queries.value).toString();
-    let res = await axios.get(`/links?${qs}`);
-    links.value = res.data.data;
-    resdata = res.data;
-  } catch (error) {
-    console.error(error);
-  }
- 
-}
-
 onMounted(()=> getLinks());
+
+async function handleDelete(id:number) {
+    await destroy(id);
+    if(data.value) {
+      data.value.data = data.value?.data.filter(link => link.id != id);
+    }
+}
 
 definePageMeta({
   middleware: ["auth"]
 });
 
 watch(queries, async() => {
-  getLinks();
   useRouter().push({query:queries.value});
 }, {deep:true});
 
@@ -61,13 +58,13 @@ watch(queries, async() => {
             <th class="w-[10%]">Edit</th>
             <th class="w-[10%]">Trash</th>
             <th class="w-[6%] text-center">
-              <button @click="getLinks"><IconRefresh class="w-[15px] relative top-[2px]"/></button>
+              <button @click="getLinks()"><IconRefresh class="w-[15px] relative top-[2px]"/></button>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="link in links" :key="link.id">
-            <td>
+          <tr v-for="link in data?.data" :key="link.id">
+            <td :title="`created ${useTimeAgo(link.created_at).value}`">
               <a :href="link.full_link" target="_blank">
                 {{ link.full_link.replace(/^http(s?):\/\//, "") }}</a
               >
@@ -92,17 +89,16 @@ watch(queries, async() => {
               /></NuxtLink>
             </td>
             <td>
-              <button><IconTrash /></button>
+              <button @click="handleDelete(link.id as number)"><IconTrash /></button>
             </td>
             <td></td>
           </tr>
         </tbody>
       </table>
-      <TailwindPagination :data="resdata" @pagination-change-page="queries.page=$event"></TailwindPagination>
+      <TailwindPagination :data="{...data}" @pagination-change-page="queries.page=$event"></TailwindPagination>
       <div class="mt-5 flex justify-center"></div>
     </div>
 
-    <!-- No links message for when table is empty -->
     <div
       v-else
       class="border-dashed border-gray-500 p-3 border-[1px] text-center"
@@ -111,10 +107,8 @@ watch(queries, async() => {
         <IconLink />
       </div>
       <p>
-        <!-- Show this if reason for no links is none found in search -->
         <span v-if="false"> No links matching links found. </span>
 
-        <!-- Show this if reason for no links is User has none -->
         <span v-else>
           No links created yet
           <NuxtLink to="/links/create" class="text-green-600"

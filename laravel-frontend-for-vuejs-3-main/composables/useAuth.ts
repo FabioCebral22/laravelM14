@@ -8,7 +8,6 @@ export const useAuth = () => {
   async function getUser(): Promise<User|null> {
 
     if (user.value) return user.value;
-
     try {
       const res = await axios.get("/user");
       const user = res.data;
@@ -33,17 +32,14 @@ export const useAuth = () => {
 
   const register = async (data:RegisterData)=> {
 
-    //password-confirmation is needed for laravel fortify validation rules for password.
     await axios.post("/register", data)
     await login ({
       email: data.email,
       password: data.password
     })
-    // router.push('/me');
   }
 
   const login = async (data:loginData)=> {
-      //Pel plugin no fa falta indicar el començament de la URL
       
       const res = await axios.post("/login", data);
       router.push('/me');
@@ -52,7 +48,6 @@ export const useAuth = () => {
   const logOut = async () => {
     try { 
       await axios.post("/logout");
-      //Eliminem les dades del usuari
       user.value = null;
       router.push("/login");
     }catch(error){
